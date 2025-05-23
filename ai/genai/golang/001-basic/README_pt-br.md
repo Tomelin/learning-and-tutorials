@@ -113,7 +113,7 @@ Agora vamos colocar as flags necessárias no nosso troubleshooting, iremos usar 
 **question (q)** para alterar o valor padrão se necessário  
 **event (e)** o evento que iremos passar
 
-Entendido os parametros, vamos criar os mesmos dentro do arquivo tshot.go na func init().
+Entendido os parametros, vamos criar os mesmos dentro do arquivo tshot.go na func **init()**.
 
 ```
 func init() {
@@ -128,7 +128,7 @@ func init() {
 }
 ```
 
-Continuando no arquivo tshot.go, configuraremos a variable tshotCmd ficará da seguinte forma:
+Continuando no arquivo tshot.go, configuraremos a variable **tshotCmd** ficará da seguinte forma:
 ```
 var tshotCmd = &cobra.Command{
 	Use:   "tshot",

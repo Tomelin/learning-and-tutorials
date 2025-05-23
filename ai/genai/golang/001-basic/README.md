@@ -111,7 +111,7 @@ Now, let's add the necessary flags to our troubleshooting command. We'll use the
 **question (q)**: to change the default value if needed  
 **event (e)**: the event we'll pass
 
-With the parameters understood, let's create them inside the tshoot.go file within the init() function.
+With the parameters understood, let's create them inside the tshoot.go file within the **init() ** function.
 
 ```
 func init() {
@@ -126,7 +126,7 @@ func init() {
 }
 ```
 
-Continuing in the **tshot.go** file, we'll configure the tshotCmd variable as follows:
+Continuing in the **tshot.go** file, we'll configure the **tshotCmd** variable as follows:
 ```
 var tshotCmd = &cobra.Command{
 	Use:   "tshot",
