@@ -10,7 +10,7 @@ Neste primeiro passo, vamos entender:
 
 Prepare-se para ver como o Go pode ser uma ferramenta poderosa para construir soluções de IA robustas e eficientes!
 
-💡 Curioso para ver o código e os detalhes técnicos? Confere o repositório/artigo completo [Link para o seu GitHub/Artigo Completo Aqui]!
+💡 Curioso para ver o código e os detalhes técnicos? Confere o repositório/artigo completo [Link para o seu GitHub/Artigo Completo Aqui](https://github.com/Tomelin/learning-and-tutorials/blob/main/ai/genai/golang/001-basic)!
 
 ## Introdução
 Nesse escopo iremos entender de forma básica, como trabalhar com o Golang e o Google Gemini. A proposta é ser prático.
@@ -25,6 +25,7 @@ Porém, diversos projetos estão usando o repositório (legacy), o que muda um p
 Nesse artigo e nos próximos irei usar a mesma estrutura de diretórios e de código, para facilitar o entendimento durante essa série.
 
 Estrutura de diretórios:
+```
 -cmd    #diretório com as inicializações do golang 
 --cli   #inicializa o código em cli (command line interface)
 --rest  #inicializa o código em http
@@ -42,6 +43,7 @@ Estrutura de diretórios:
 ---cache
 --llm
 ---gemini
+```
 
 Essa será a estrutura básica do nosso código.  Não irei detalhar o arquivo config, apenas deixarei compartilhado, pois a unica coisa que ele faz, é ler o arquivo YAML, arquivo que contém as configurações da nossa app
 
@@ -67,7 +69,7 @@ datatase:
 
 Conforme avançarmos, vamos ajustando os valores e paramêtro, pois nesse momento iremos usar apenas o token GEMINI
 
-O link do config.go, está aqui.   O config verifica se existe a variável "PATH_CONFIG" que é correspondente a onde se encontra o arquivo config.yaml.  Caso não exista, irá procurar o arquivo config.yaml na raiz de onde está se executando o projeto.  Caso não encontre em nenhum desse dois lugares, retornará erro
+O link do config.go, [está aqui](https://github.com/Tomelin/learning-and-tutorials/blob/main/ai/genai/golang/001-basic/config/config.go).   O config verifica se existe a variável "PATH_CONFIG" que é correspondente a onde se encontra o arquivo config.yaml.  Caso não exista, irá procurar o arquivo config.yaml na raiz de onde está se executando o projeto.  Caso não encontre em nenhum desse dois lugares, retornará erro
 
 O config, irá retornar um map[string]interface das nossas configurações e cada componente, terá que tratar as suas configs.
 
@@ -120,6 +122,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
   // Flag com objetivo de definir a Role do prompt a ser criado (opcional) ao executar a cli
 	tshotCmd.Flags().StringP("question", "q", "", "Role: Act as an expert Kubernetes SRE Engineer. Focus on cluster health data analysis (Kubernetes, Cilium CNI, Ingress, Nginx, Karpenter, addons). Proactively identify, diagnose, and remediate issues and create a report and propose the solution")
+  
   // Flag onde passaremos os logs ou eventos do kubernetes.  Lembra, teremos limites de caracteres , por causa da LLM
 	tshotCmd.Flags().StringP("events", "e", "", "kubernetes events or logs")
 }
