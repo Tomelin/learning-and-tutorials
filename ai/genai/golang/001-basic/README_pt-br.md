@@ -110,7 +110,7 @@ tshot.go
 
 Agora vamos colocar as flags necessárias no nosso troubleshooting, iremos usar as seguintes flags:
 
-**question (q)** para alterar o valor padrão se necessário
+**question (q)** para alterar o valor padrão se necessário  
 **event (e)** o evento que iremos passar
 
 Entendido os parametros, vamos criar os mesmos dentro do arquivo tshot.go na func init().

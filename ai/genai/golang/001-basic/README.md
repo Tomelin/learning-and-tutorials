@@ -108,7 +108,7 @@ tshot.go
 
 Now, let's add the necessary flags to our troubleshooting command. We'll use the following flags:
 
-**question (q)**: to change the default value if needed
+**question (q)**: to change the default value if needed  
 **event (e)**: the event we'll pass
 
 With the parameters understood, let's create them inside the tshoot.go file within the init() function.
