@@ -1,0 +1,14 @@
+# Binaries
+rag-cli
+*.exe
+*.out
+
+# Env files
+.env*
+*.env
+
+# IDE/Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
