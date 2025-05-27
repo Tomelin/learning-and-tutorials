@@ -80,25 +80,24 @@ func VectorSearch(ctx context.Context, mongoClient *mongo.Client, embeddingClien
 
 	// Hardcoded index name as per requirements.
 	// Consider making numCandidates and limit configurable via cfg if needed.
-	vectorSearchStage := bson.D{
-		{"$vectorSearch", bson.D{
-			{"index", "vector_index"}, // Name of the vector search index in MongoDB Atlas
-			{"path", cfg.MongoVectorField},
-			{"queryVector", embeddingVector},
-			{"numCandidates", bson.Int32(150)}, // Number of candidates to consider
-			{"limit", bson.Int32(10)},          // Number of results to return
-		}},
+	pipeline := mongo.Pipeline{
+		bson.D{
+			{Key: "$vectorSearch", Value: bson.D{
+				{Key: "index", Value: "vector_index"}, // Name of the vector search index in MongoDB Atlas
+				{Key: "path", Value: cfg.MongoVectorField},
+				{Key: "queryVector", Value: embeddingVector}, // This is the []float32 from Gemini
+				{Key: "numCandidates", Value: int32(150)},    // Correctly use int32()
+				{Key: "limit", Value: int32(10)},             // Correctly use int32()
+			}},
+		},
+		bson.D{
+			{Key: "$project", Value: bson.D{
+				{Key: "_id", Value: 0}, // Exclude the _id field
+				{Key: cfg.MongoContentField, Value: 1},
+				{Key: "score", Value: bson.D{{Key: "$meta", Value: "vectorSearchScore"}}},
+			}},
+		},
 	}
-
-	projectStage := bson.D{
-		{"$project", bson.D{
-			{"_id", 0}, // Exclude the _id field
-			{cfg.MongoContentField, 1},
-			{"score", bson.D{{"$meta", "vectorSearchScore"}}},
-		}},
-	}
-
-	pipeline := mongo.Pipeline{vectorSearchStage, projectStage}
 
 	log.Printf("Executing vector search pipeline on collection: %s.%s", cfg.MongoDatabase, cfg.MongoCollection)
 	cursor, err := collection.Aggregate(ctx, pipeline)
