@@ -66,6 +66,35 @@ To use the CLI, provide your query using the `--query` (or `-q`) flag:
 
 The CLI will then output logs indicating its progress (vector search, content generation) and finally print the answer from Gemini.
 
+### Inserting Documents for RAG
+
+The `insert` subcommand allows you to add new documents to your MongoDB collection, making them available for the RAG system. For each input text, the CLI will automatically generate an embedding using Google Gemini and store both the text and its embedding.
+
+**Usage:**
+
+```bash
+./rag-cli insert [flags]
+```
+
+**Flags:**
+
+*   `-t, --text "your text"`: The text content you want to insert directly.
+*   `-f, --file "/path/to/file.txt"`: The path to a plain text file whose content you want to insert.
+
+**Important:** You must provide either the `--text` flag or the `--file` flag, but not both.
+
+**Examples:**
+
+1.  **Insert text directly:**
+    ```bash
+    ./rag-cli insert --text "The quick brown fox jumps over the lazy dog."
+    ```
+
+2.  **Insert content from a file:**
+    ```bash
+    ./rag-cli insert --file ./documents/my_article.txt
+    ```
+
 ## How it Works
 
 1.  **User Query:** You provide a question or topic as a query string.

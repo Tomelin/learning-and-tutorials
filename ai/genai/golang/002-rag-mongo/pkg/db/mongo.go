@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"learn-ai/ragmongo/config"
+	"learn-ai/ragmongo/pkg/llm" // Added import for llm package
 )
 
 // NewMongoClient creates and returns a new MongoDB client.
@@ -65,16 +66,12 @@ func VectorSearch(ctx context.Context, mongoClient *mongo.Client, embeddingClien
 	}
 
 	log.Printf("Generating embedding for query: %s", query)
-	embRes, err := embeddingClient.EmbedContent(ctx, genai.Text(query))
+	embeddingVector, err := llm.GetEmbedding(ctx, embeddingClient, query) // Call the new function
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate embedding for query '%s': %w", query, err)
+		return nil, fmt.Errorf("failed to get embedding for query '%s': %w", query, err)
 	}
-
-	if embRes == nil || embRes.Embedding == nil {
-		return nil, fmt.Errorf("received nil embedding result for query: %s", query)
-	}
-	embeddingVector := embRes.Embedding.Values
-	log.Printf("Embedding generated successfully. Vector dimension: %d", len(embeddingVector))
+	// embeddingVector is now ready to be used
+	log.Printf("Embedding generated successfully via llm.GetEmbedding. Vector dimension: %d", len(embeddingVector))
 
 	collection := mongoClient.Database(cfg.MongoDatabase).Collection(cfg.MongoCollection)
 
@@ -145,4 +142,43 @@ func VectorSearch(ctx context.Context, mongoClient *mongo.Client, embeddingClien
 	}
 
 	return results, nil
+}
+
+// InsertRAGDocument inserts a new document with its text content and vector embedding
+// into the configured MongoDB collection.
+func InsertRAGDocument(ctx context.Context, mongoClient *mongo.Client, cfg *config.Configs, textContent string, embeddingVector []float32) error {
+	if mongoClient == nil {
+		return fmt.Errorf("MongoDB client is nil")
+	}
+	if cfg == nil {
+		return fmt.Errorf("config is nil")
+	}
+	if cfg.MongoDatabase == "" || cfg.MongoCollection == "" || cfg.MongoVectorField == "" || cfg.MongoContentField == "" {
+		return fmt.Errorf("MongoDB database, collection, vector field, or content field is not configured")
+	}
+	if textContent == "" {
+		return fmt.Errorf("textContent cannot be empty")
+	}
+	if len(embeddingVector) == 0 {
+		return fmt.Errorf("embeddingVector cannot be empty")
+	}
+
+	collection := mongoClient.Database(cfg.MongoDatabase).Collection(cfg.MongoCollection)
+
+	document := bson.M{
+		cfg.MongoContentField: textContent,
+		cfg.MongoVectorField:  embeddingVector,
+		// Note: MongoDB will automatically generate an _id for this document.
+	}
+
+	log.Printf("Inserting document into %s.%s. Content field: '%s', Vector field: '%s'",
+		cfg.MongoDatabase, cfg.MongoCollection, cfg.MongoContentField, cfg.MongoVectorField)
+
+	_, err := collection.InsertOne(ctx, document)
+	if err != nil {
+		return fmt.Errorf("failed to insert document into MongoDB: %w", err)
+	}
+
+	log.Printf("Successfully inserted document.")
+	return nil
 }

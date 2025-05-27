@@ -95,3 +95,24 @@ func GenerateContentWithContext(ctx context.Context, genAIClient *genai.Generati
 
 	return responseBuilder.String(), nil
 }
+
+// GetEmbedding generates and returns the embedding for a given text using the provided EmbeddingModel.
+func GetEmbedding(ctx context.Context, embeddingClient *genai.EmbeddingModel, text string) ([]float32, error) {
+	if embeddingClient == nil {
+		return nil, fmt.Errorf("embeddingClient is nil")
+	}
+	if text == "" {
+		return nil, fmt.Errorf("text to embed cannot be empty")
+	}
+
+	res, err := embeddingClient.EmbedContent(ctx, genai.Text(text))
+	if err != nil {
+		return nil, fmt.Errorf("failed to embed content: %w", err)
+	}
+
+	if res == nil || res.Embedding == nil || len(res.Embedding.Values) == 0 {
+		return nil, fmt.Errorf("received empty embedding from API")
+	}
+
+	return res.Embedding.Values, nil
+}
