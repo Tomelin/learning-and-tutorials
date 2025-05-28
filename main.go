@@ -129,7 +129,39 @@ func main() {
 	fmt.Printf("RSI(%d): %s\n", rsiPeriod, formatIndicatorValue(latestRSI14, okRSI14))
 	fmt.Printf("Determined Trend: %s\n", trend)
 
-	// --- 7. Prepare and Print Gemini Prompt ---
+	// --- 7. Advanced Validation: Previous Low Before Downtrend ---
+	// This section performs an additional validation if the current trend is "downtrend".
+	// It tries to find a significant low price that occurred in a non-downtrend period
+	// immediately preceding the current downtrend.
+	if trend == "downtrend" {
+		// First, obtain the historical trend data for all valid periods.
+		// This is necessary for FindPreviousLowBeforeDowntrend to analyze the sequence of trends.
+		historicalTrends := stockanalyzer.DetermineHistoricalTrend(ema7, ema21, ema49)
+
+		// Ensure quoteData.Date and quoteData.Low are available and correctly populated.
+		// quote.NewQuoteFromTiingo populates these.
+		if len(quoteData.Low) == 0 || len(quoteData.Date) == 0 {
+			log.Println("Warning: Low prices or dates data is missing, cannot perform previous low validation.")
+		} else if len(quoteData.Low) != len(quoteData.Date) {
+			log.Println("Warning: Mismatch between low prices and dates data length, cannot perform previous low validation.")
+		} else {
+			prevLowPrice, prevLowDate, found := stockanalyzer.FindPreviousLowBeforeDowntrend(quoteData.Low, quoteData.Date, historicalTrends)
+			if found {
+				fmt.Printf("Validation: Previous significant low of %.2f on %s found. ", prevLowPrice, prevLowDate.Format("2006-01-02"))
+				if prevLowPrice > latestClosingPrice {
+					fmt.Println("This previous low is ABOVE the current closing price.")
+				} else if prevLowPrice < latestClosingPrice {
+					fmt.Println("This previous low is BELOW the current closing price.")
+				} else {
+					fmt.Println("This previous low is EQUAL to the current closing price.")
+				}
+			} else {
+				fmt.Println("Validation: No significant previous low found before the current downtrend.")
+			}
+		}
+	}
+
+	// --- 8. Prepare and Print Gemini Prompt ---
 	// Formats the collected data into a prompt suitable for an AI model like Gemini.
 	geminiPrompt := stockanalyzer.FormatDataForGemini(stockSymbol, latestClosingPrice, ema7, ema21, ema49, rsi14, trend)
 
